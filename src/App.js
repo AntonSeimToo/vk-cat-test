@@ -1,181 +1,142 @@
-import React, { useState } from "react";
-import bridge from "@vkontakte/vk-bridge";
-import "./App.css";
-
-const QUESTIONS = [
-  {
-    question: "Как ты проводишь выходной?",
-    options: ["Сплю", "Гуляю", "Читаю", "Планирую мир"],
-  },
-  {
-    question: "Выбери еду:",
-    options: ["Молоко", "Рыба", "Паштет", "Мясо"],
-  },
-  {
-    question: "Что тебе ближе?",
-    options: ["Тишина", "Внимание", "Размышления", "Экшн"],
-  },
-];
-
-const RESULTS = [
-  {
-    title: "Сонная британка",
-    description: "Ты — воплощение уюта. Обожаешь мягкие подушки, неспешные прогулки и хороший сон.",
-    image: "/images/british_cat.png"
-  },
-  {
-    title: "Игривая сфинкс",
-    description: "У тебя неуемная энергия и тяга к вниманию. Любишь быть в центре событий и радовать всех вокруг.",
-    image: "/images/sphynx_cat.png"
-  },
-  {
-    title: "Задумчивый сибиряк",
-    description: "Независимость и мудрость — твой стиль. Ты наблюдателен, глубок и ценишь личное пространство.",
-    image: "/images/siberian_cat.png"
-  },
-  {
-    title: "Боевой мейн-кун",
-    description: "Ты уверен в себе, громкий и харизматичный. Всегда готов действовать и защищать своих.",
-    image: "/images/maine_coon_cat.png"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import bridge from '@vkontakte/vk-bridge';
+import './App.css';
 
 function App() {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState([]);
+  const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [resultIndex, setResultIndex] = useState(0);
 
-  const handleAnswer = (optionIndex) => {
-    const newAnswers = [...answers, optionIndex];
-    setAnswers(newAnswers);
+  useEffect(() => {
+    bridge.send('VKWebAppInit');
+  }, []);
 
-    if (step + 1 === QUESTIONS.length) {
-      showAdBeforeResult(newAnswers);
-    } else {
-      setStep(step + 1);
-    }
-  };
+  const questions = [
+    {
+      text: 'Ты любишь спать днём?',
+      options: [
+        { answer: 'Да', value: 2 },
+        { answer: 'Иногда', value: 1 },
+        { answer: 'Нет', value: 0 },
+      ],
+    },
+    {
+      text: 'Ты боишься воды?',
+      options: [
+        { answer: 'Очень', value: 2 },
+        { answer: 'Скорее да', value: 1 },
+        { answer: 'Нет', value: 0 },
+      ],
+    },
+    {
+      text: 'Ты любишь сидеть на окне и смотреть в окно?',
+      options: [
+        { answer: 'Да, это моё всё', value: 2 },
+        { answer: 'Иногда', value: 1 },
+        { answer: 'Нет, скучно', value: 0 },
+      ],
+    },
+  ];
 
-  const showAdBeforeResult = async (finalAnswers) => {
-    try {
-      const result = await bridge.send("VKWebAppShowNativeAds", { ad_format: "interstitial" });
-      if (result.result) {
-        console.log("Реклама показана");
-      } else {
-        console.log("Реклама не была показана");
+  const results = [
+    {
+      title: 'Сонная британка',
+      description: 'Ты — воплощение уюта. Обожаешь мягкие подушки, неспешные прогулки и хороший сон.',
+      image: '/images/british_cat.png',
+    },
+    {
+      title: 'Игривая сфинкс',
+      description: 'У тебя неуемная энергия и тяга к вниманию. Любишь быть в центре событий.',
+      image: '/images/sphynx_cat.png',
+    },
+    {
+      title: 'Задумчивый сибиряк',
+      description: 'Независимость и мудрость — твой стиль. Ты наблюдателен и ценишь личное пространство.',
+      image: '/images/siberian_cat.png',
+    },
+    {
+      title: 'Боевой мейн-кун',
+      description: 'Ты уверен в себе, громкий и харизматичный. Всегда готов действовать и защищать своих.',
+      image: '/images/maine_coon_cat.png',
+    },
+  ];
+
+  const handleAnswer = async (value) => {
+    const nextStep = step + 1;
+    setScore(score + value);
+    if (nextStep >= questions.length) {
+      try {
+        await bridge.send('VKWebAppShowNativeAds', { ad_format: 'interstitial' });
+      } catch (error) {
+        console.warn('Реклама не показана или недоступна:', error);
       }
-    } catch (error) {
-      console.warn("Ошибка показа рекламы", error);
-    }
-
-    const index = getResultIndex(finalAnswers);
-    setResultIndex(index);
-    setShowResult(true);
-  };
-
-  const getResultIndex = (answers) => {
-    const sum = answers.reduce((a, b) => a + b, 0);
-    return sum % RESULTS.length;
-  };
-
-  const shareResult = async (textToShare) => {
-    try {
-      await bridge.send("VKWebAppShare", {
-        link: "https://vk.com/appYOUR_APP_ID", // <-- Замени на ссылку на твоё мини-приложение
-        text: textToShare
-      });
-    } catch (error) {
-      console.error("Ошибка при попытке поделиться:", error);
+      setShowResult(true);
+    } else {
+      setStep(nextStep);
     }
   };
 
   const restart = () => {
+    setScore(0);
     setStep(0);
-    setAnswers([]);
     setShowResult(false);
+  };
+
+  const getResult = () => {
+    if (score <= 2) return results[0];
+    if (score <= 4) return results[1];
+    if (score <= 5) return results[2];
+    return results[3];
+  };
+
+  const shareResult = async () => {
+    const result = getResult();
+    const message = `Я прошёл тест «Какой ты котик?» и оказался: ${result.title} 😺 Проверь себя тоже!`;
+    try {
+      await bridge.send('VKWebAppShare', {
+        link: 'https://AntonSeimToo.github.io/vk-cat-test/',
+        text: message,
+      });
+    } catch (error) {
+      console.warn('Ошибка при попытке поделиться:', error);
+    }
   };
 
   return (
     <div className="App">
-      <h1>Какой ты котик?</h1>
-
       {!showResult ? (
-        <>
-          <h2>{QUESTIONS[step].question}</h2>
-          <ul>
-            {QUESTIONS[step].options.map((option, i) => (
-              <li key={i}>
-                <button onClick={() => handleAnswer(i)}>{option}</button>
-              </li>
-            ))}
-          </ul>
-        </>
+        <div className="question-block">
+          <h2>{questions[step].text}</h2>
+          {questions[step].options.map((opt, idx) => (
+            <button key={idx} onClick={() => handleAnswer(opt.value)}>
+              {opt.answer}
+            </button>
+          ))}
+        </div>
       ) : (
-        <div className="result">
-          <h2>{RESULTS[resultIndex].title}</h2>
-          <img src={RESULTS[resultIndex].image} alt="Котик" style={{ maxWidth: "250px", borderRadius: "16px" }} />
-          <p>{RESULTS[resultIndex].description}</p>
-
-          <button onClick={restart} style={{
-            marginTop: "16px",
-            padding: "10px 20px",
-            backgroundColor: "#4a76a8",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            cursor: "pointer"
-          }}>
+        <div className="result-block fade-in">
+          <h2>{getResult().title}</h2>
+          <img src={getResult().image} alt="cat result" />
+          <p>{getResult().description}</p>
+          <button onClick={restart} style={{ marginTop: '20px' }}>
             Пройти ещё раз
           </button>
-
           <button
-            onClick={() => shareResult(`Я прошёл тест "Какой ты котик?" и стал: ${RESULTS[resultIndex].title} 😺 Проверь себя тоже!`)}
+            onClick={shareResult}
             style={{
-              marginTop: "16px",
-              padding: "10px 20px",
-              backgroundColor: "#4a76a8",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              cursor: "pointer"
+              marginTop: '10px',
+              backgroundColor: '#4a76a8',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
             }}
           >
             📤 Поделиться ВКонтакте
           </button>
         </div>
       )}
-
-      <footer style={{
-        marginTop: "40px",
-        paddingTop: "20px",
-        borderTop: "1px solid #ddd",
-        fontSize: "14px",
-        color: "#888",
-        textAlign: "center"
-      }}>
-        <p>🐾 Версия 1.0 — Готовое мини-приложение</p>
-        <p>© 2025 Антон. Все права защищены.</p>
-        <a
-          href="https://vk.com/id13607466"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "inline-block",
-            marginTop: "10px",
-            padding: "8px 16px",
-            backgroundColor: "#4a76a8",
-            color: "white",
-            borderRadius: "8px",
-            textDecoration: "none",
-            fontWeight: "bold"
-          }}
-        >
-          ✉ Написать автору
-        </a>
-      </footer>
     </div>
   );
 }
