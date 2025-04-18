@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "КотоЯ",
+  "name": "КотоЯ — тест о твоём внутреннем котике",
+  "description": "Пройди весёлый тест и узнай, какой ты котик: уютный британец, игривый сфинкс или боевой мейн-кун!",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#ffffff",
   "background_color": "#ffffff"
 }
