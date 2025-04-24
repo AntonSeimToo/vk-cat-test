@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/kotoya-telegram/static/css/main.1ae493e0.css",
-    "main.js": "/kotoya-telegram/static/js/main.6a4b25fb.js",
-    "static/js/453.8279f3c0.chunk.js": "/kotoya-telegram/static/js/453.8279f3c0.chunk.js",
-    "index.html": "/kotoya-telegram/index.html",
-    "main.1ae493e0.css.map": "/kotoya-telegram/static/css/main.1ae493e0.css.map",
-    "main.6a4b25fb.js.map": "/kotoya-telegram/static/js/main.6a4b25fb.js.map",
-    "453.8279f3c0.chunk.js.map": "/kotoya-telegram/static/js/453.8279f3c0.chunk.js.map"
+    "main.css": "/vk-cat-test/static/css/main.1ae493e0.css",
+    "main.js": "/vk-cat-test/static/js/main.e82c8751.js",
+    "static/js/453.8279f3c0.chunk.js": "/vk-cat-test/static/js/453.8279f3c0.chunk.js",
+    "index.html": "/vk-cat-test/index.html",
+    "main.1ae493e0.css.map": "/vk-cat-test/static/css/main.1ae493e0.css.map",
+    "main.e82c8751.js.map": "/vk-cat-test/static/js/main.e82c8751.js.map",
+    "453.8279f3c0.chunk.js.map": "/vk-cat-test/static/js/453.8279f3c0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1ae493e0.css",
-    "static/js/main.6a4b25fb.js"
+    "static/js/main.e82c8751.js"
   ]
 }
